@@ -2,9 +2,9 @@
 
 #include "LinkedList.h"
 
-void ll_insert(LinkedList* l, int item, int index){
+void ll_insert(LinkedList* l, double item, int index){
     if (index > l->size){
-        printf("Cannot add item %d at index %d", item, index);
+        printf("Cannot add item %f at index %d", item, index);
         printf("Requested index exceeds list size");
         return;
     }
@@ -52,23 +52,62 @@ void ll_insert(LinkedList* l, int item, int index){
         l->_tail = newNode;
     }
     l->size ++;
-    printf("Elment %d inserted at %d\n", item, index);
 }
 
-void ll_append(LinkedList* l, int a){
+void ll_append(LinkedList* l, double a){
     ll_insert(l, a, l->size);
 }
 
-int ll_getindex(LinkedList* l, int i){
-    if (i < 0 || i > l->size)
-        return NULL;
-
+Node* ll_getindexnode(LinkedList* l, int i){
     Node* n = l->_head;
     while (l->size - i > 1){
         n = n->_prev;
         i ++;
     }
-    return n->_data;
+    return n;
+}
+
+void ll_swap_index(LinkedList* l, int index_a, int index_b){
+    Node* n1 = ll_getindexnode(l, index_a);
+    Node* n2 = ll_getindexnode(l, index_b);
+    double buff = n1->_data;
+    n1->_data = n2->_data;
+    n2->_data = buff;
+}
+
+double ll_getindex(LinkedList* l, int i){
+    if (i < 0 || i >= l->size)
+        return ll_INDEX_ERROR;
+    return ll_getindexnode(l, i)->_data;
+}
+
+int _ll_deafult_key(double a, double b){
+    if (a <= b){
+        return 0;
+    } else{
+        return 1;
+    }
+}
+
+void ll_sort_key(LinkedList* l, int (*key)(double, double)){
+    // Key(a, b) should return:
+    // 0    - a sorted below b
+    // != 0 - b sorted below a
+
+    int i, j, min;
+    for (i=0; i < l->size; i++){
+        min = i;
+        for (j=i+1; j < l->size; j++){
+            if (key(ll_getindex(l, min), ll_getindex(l, j)) != 0){
+                min = j;
+            }
+        }
+        ll_swap_index(l, i, min);
+    }
+}
+
+void ll_sort(LinkedList* l){
+    ll_sort_key(l, &_ll_deafult_key);
 }
 
 LinkedList* ll_create(){
